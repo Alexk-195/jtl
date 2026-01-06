@@ -260,6 +260,5 @@ Here are all the public methods of JTLEntity in a table:
 | `public Vector<JTLEntity> children` | Children |
 | `public JTLEntity parent` | Parent Entity |
 
-
 ## License
 MIT License, see LICENSE file 

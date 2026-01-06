@@ -253,6 +253,13 @@ Here are all the public methods of JTLEntity in a table:
 | `public void dumpXML(int depth)` | Dumps the entity in XML format with provided depth (=indentation). |
 | `public void dumpXML()` | Dumps the definition in XML format. |
 
+| Members | Description |
+|------------------|-------------|
+| `public String name` | Entity name |
+| `public Vector<String> params` | Parameter |
+| `public Vector<JTLEntity> children` | Children |
+| `public JTLEntity parent` | Parent Entity |
+
 
 ## License
 MIT License, see LICENSE file 

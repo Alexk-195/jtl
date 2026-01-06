@@ -166,7 +166,7 @@ public class JTLC {
         }
 
         if (inStr) {
-            throw (new Exception("Unclosed string"));
+            //throw (new Exception("Unclosed string"));
         }
 
         // now we create java code line by using println

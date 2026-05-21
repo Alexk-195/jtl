@@ -202,30 +202,31 @@ public class JTLResultWriter
         boolean identicalFiles = false;
         File backupFile = null;
 
-        if (!oldFileExist || !createBackup) {
+        if (!oldFileExist) {
             canWriteNewFile = true;
         } else {
             identicalFiles = identicalFiles();
             if (!identicalFiles) {
-                SimpleDateFormat formatter = new SimpleDateFormat(
-                        " yyyy-MM-dd hh-mm-ss-sss");
-                Date currentTime_1 = new Date();
-                String dateString = formatter.format(currentTime_1);
+                canWriteNewFile = true;
+                if (createBackup) {
+                    SimpleDateFormat formatter = new SimpleDateFormat(
+                            " yyyy-MM-dd hh-mm-ss-sss");
+                    Date currentTime_1 = new Date();
+                    String dateString = formatter.format(currentTime_1);
 
-                String backupFilename = filename + dateString + ".bak";
-                backupFile = new File(backupFilename);
+                    String backupFilename = filename + dateString + ".bak";
+                    backupFile = new File(backupFilename);
 
-                if (oldFile.renameTo(backupFile)) {
-                    canWriteNewFile = true;
-                    backupCreated = true;
-                } else {
-                    throw new IOException(
-                            "Error: file could not be backuped to  "+
-                             backupFile.getAbsolutePath()+ 
-                            ". Please check if destination file not alread exists.");
+                    if (oldFile.renameTo(backupFile)) {
+                        backupCreated = true;
+                    } else {
+                        throw new IOException(
+                                "Error: file could not be backuped to  "+
+                                 backupFile.getAbsolutePath()+
+                                ". Please check if destination file not alread exists.");
+                    }
                 }
             }
-
         }
 
         if (canWriteNewFile) {

@@ -71,7 +71,7 @@ public class JTLDefinitionParser {
             JTLOut.out.println(s);
     }
 
-    /// parse a block definition
+    /** Parses a block definition. */
     protected void parseBlock(JTLEntity e) throws Exception {
         tokenizer.nextToken();
         while (tokenizer.ttype != BLOCK_END) {
@@ -174,7 +174,7 @@ public class JTLDefinitionParser {
         }
     }
 
-    /// Parse the entity definition.
+    /** Parses the entity definition. */
     protected void parseEntity(JTLEntity e) throws Exception {
 
         if ((tokenizer.ttype == StreamTokenizer.TT_EOF))

@@ -12,20 +12,19 @@ public class JTLResultWriter extends Writer {
 
     private final String definitionFileName;
     private final String templateFileName;
+    /** Contains new processed file content. */
     private final Vector<String> Lines;
-    /// < contains new processed file content
     private final String filename;
     private boolean oldFileExist = false;
     private boolean createBackup = true;
     private File oldFile;
+    /** Begin pattern; use {@code @id@} as placeholder for the section key. */
     private String manualSectionBeginPattern = "";
-    /// < use @id@ for key
+    /** End pattern; use {@code @id@} as placeholder for the section key. */
     private String manualSectionEndPattern = "";
-    /// < use @id@ for key
 
+    /** Contains old file content. */
     public Vector<String> filebuffer;
-
-    /// < contains old file content
 
     private void loadOldFile(String fname) throws Exception {
         oldFile = new File(fname);

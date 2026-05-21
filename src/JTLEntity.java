@@ -5,18 +5,18 @@ import java.util.*;
  * parameters (Collection of strings).
  *
  */
-public class JTLEntity extends Object {
+public class JTLEntity {
 
-    /// @ children name
+    /** Entity name. */
     public String name;
 
-    /// @ parameters of the entity
+    /** Parameters of the entity. */
     public Vector<String> params;
 
-    /// @ children of the entity
+    /** Children of the entity. */
     public Vector<JTLEntity> children;
 
-    /// @ parent entity
+    /** Parent entity. */
     public JTLEntity parent;
 
     public JTLEntity() {
@@ -26,7 +26,7 @@ public class JTLEntity extends Object {
         children = new Vector<JTLEntity>();
     }
 
-    /// @ returns child by given name
+    /** Returns child by given name. */
     public JTLEntity child(String sname) {
         if (sname.equals("..")) {
             return parent;
@@ -38,19 +38,15 @@ public class JTLEntity extends Object {
                 return e;
             }
         }
-        // JTLOut.out.println("JTLEntity.child(String) method didn't find child
-        // named:"+sname);
-        // JTLOut.out.println("Entity "+fullpath());
-        // dump(5);
         return null;
     }
 
-    /// @ returns true if child exists
+    /** Returns true if child exists. */
     public boolean hasChild(String sname) {
         return child(sname) != null;
     }
 
-    /// @ returns full path of entity with "/" as delimiter
+    /** Returns full path of entity with "/" as delimiter. */
     public String fullpath() {
         if (parent == null) {
             return name;
@@ -59,7 +55,7 @@ public class JTLEntity extends Object {
         }
     }
 
-    /// @ returns child by index
+    /** Returns child by index. */
     public JTLEntity child(int nr) throws Exception {
         if (nr < children.size()) {
             return (JTLEntity) children.elementAt(nr);
@@ -71,7 +67,7 @@ public class JTLEntity extends Object {
         }
     }
 
-    /// @ returns param by index
+    /** Returns param by index. */
     public String param(int nr) throws Exception {
         if (nr < params.size()) {
             return (String) params.elementAt(nr);
@@ -83,17 +79,17 @@ public class JTLEntity extends Object {
         }
     }
 
-    /// @ returns true if this child is last one
+    /** Returns true if this child is the last one. */
     public boolean isLast() {
         return parent.children.elementAt(parent.children.size() - 1) == this;
     }
 
-    /// @ returns true if this child is first one
+    /** Returns true if this child is the first one. */
     public boolean isFirst() {
         return parent.children.elementAt(0) == this;
     }
 
-    /// @ returns c_then character if entity is last child, c_else otherwise
+    /** Returns c_then character if entity is last child, c_else otherwise. */
     public Character ifLast(Character c_then, Character c_else) {
         if (isLast()) {
             return c_then;
@@ -102,7 +98,7 @@ public class JTLEntity extends Object {
         }
     }
 
-    /// @ returns c_then String if entity is last child, c_else otherwise
+    /** Returns c_then String if entity is last child, c_else otherwise. */
     public String ifLast(String c_then, String c_else) {
         if (isLast()) {
             return c_then;
@@ -111,7 +107,7 @@ public class JTLEntity extends Object {
         }
     }
 
-    /// @ returns c_then character if entity is first child, c_else otherwise
+    /** Returns c_then character if entity is first child, c_else otherwise. */
     public Character ifFirst(Character c_then, Character c_else) {
         if (isFirst()) {
             return c_then;
@@ -120,7 +116,7 @@ public class JTLEntity extends Object {
         }
     }
 
-    /// @ returns c_then String if entity is first child, c_else otherwise
+    /** Returns c_then String if entity is first child, c_else otherwise. */
     public String ifFirst(String c_then, String c_else) {
         if (isFirst()) {
             return c_then;
@@ -134,20 +130,20 @@ public class JTLEntity extends Object {
         return name;
     }
 
-    /// @ adds child to entity
+    /** Adds child to entity. */
     public JTLEntity addChild(JTLEntity e) {
         children.addElement(e);
         e.parent = this;
         return this;
     }
 
-    /// @ adds parameter to entity
+    /** Adds parameter to entity. */
     public JTLEntity addParam(String p) {
         params.addElement(p);
         return this;
     }
 
-    /// @ sets parameter by index
+    /** Sets parameter by index. */
     public JTLEntity setParam(int i, String p) throws Exception {
 
         if (i < params.size()) {
@@ -161,16 +157,15 @@ public class JTLEntity extends Object {
         return this;
     }
 
-    /// dump recursive for debugging with provided depth (=indentation)
+    /** Recursive dump for debugging with provided depth (=indentation). */
     public void dump(int depth) {
 
-        String sparams = "";
+        StringBuilder sparams = new StringBuilder();
         for (int i = 0; i < params.size(); i++) {
-            if (i == 0) {
-                sparams = '"' + (String) params.elementAt(0) + '"';
-            } else {
-                sparams = sparams + ",\"" + (String) params.elementAt(i) + "\"";
+            if (i > 0) {
+                sparams.append(',');
             }
+            sparams.append('"').append((String) params.elementAt(i)).append('"');
         }
 
         printshifted(name + "(" + sparams + ")", depth);
@@ -186,19 +181,19 @@ public class JTLEntity extends Object {
 
     }
 
-    /// dumps definition in def format
+    /** Dumps definition in def format. */
     public void dump() {
         dump(0);
     }
 
-    /// dumps in xml format with provided depth (=indentation)
+    /** Dumps in XML format with provided depth (=indentation). */
     public void dumpXML(int depth) {
-        String sparams = "";
+        StringBuilder sparams = new StringBuilder();
         for (int i = 0; i < params.size(); i++) {
             if (i != 0) {
-                sparams = sparams + ' ';
+                sparams.append(' ');
             }
-            sparams = sparams + "PARAM" + i + "=\"" + (String) params.elementAt(i) + '"';
+            sparams.append("PARAM").append(i).append("=\"").append((String) params.elementAt(i)).append('"');
         }
 
         if (children.size() > 0) {
@@ -218,12 +213,12 @@ public class JTLEntity extends Object {
 
     }
 
-    /// dumps definitionin XML format
+    /** Dumps definition in XML format. */
     public void dumpXML() {
         dumpXML(0);
     }
 
-    /// prints something shifted
+    /** Prints something shifted. */
     private void printshifted(String what, int depth) {
         for (int i = 0; i < depth * 2; i++) {
             JTLOut.out.print(" ");

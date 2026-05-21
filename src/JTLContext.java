@@ -14,7 +14,7 @@ public class JTLContext {
     public static final int majorVersion = 3;
 
     /** Tool version minor number. */
-    public static final int minorVersion = 4;
+    public static final int minorVersion = 5;
 
     /**
      * Writer object which will be used for output. If its null the standard output

@@ -14,6 +14,7 @@ public class TestHarness {
         "JTLCTest",
         "JTLResultWriterTest",
         "JTLContextTest",
+        "JTLTemplateTest",
         "GoldenFileTest",
     };
 

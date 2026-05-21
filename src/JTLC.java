@@ -9,7 +9,7 @@ import java.io.*;
 public class JTLC {
 
     JTLDefinitionParser defparser;
-    
+
     /// name of template file
     String tname;
     RandomAccessFile templateReader;
@@ -28,7 +28,7 @@ public class JTLC {
     static final String CS_E = "@>"; // ... end
     static final String CW_B = "@["; // code word start
     static final String CW_E = "]@"; // ... end
-    static final String CL = "@";  // code line
+    static final String CL = "@"; // code line
 
     /// all template output shall be done using this method
     void tout(String s) {
@@ -41,23 +41,21 @@ public class JTLC {
 
     }
 
-    void log(String s)
-    {
+    void log(String s) {
         if (verbose)
             JTLOut.out.println(s);
     }
 
-    void err(String s)
-    {
+    void err(String s) {
         JTLOut.err.println(s);
     }
 
-    public String getJavaTemplateFile()
-    {
+    public String getJavaTemplateFile() {
         return javaTemplateFile;
     }
 
-    /// Checks if line starts with particular string (front). If yes "front" will be replaced by string "repl".
+    /// Checks if line starts with particular string (front). If yes "front" will be
+    /// replaced by string "repl".
     protected String checkReplace(String line, String front, String repl) {
         String ts = line.trim();
         lastCheckOK = ts.startsWith(front);
@@ -73,7 +71,7 @@ public class JTLC {
 
         tout("import java.io.*;");
         tout("import java.util.*;");
-		tout("import java.text.*;");
+        tout("import java.text.*;");
 
         RandomAccessFile headerReader;
         try {
@@ -93,7 +91,8 @@ public class JTLC {
         tout("public class " + classFileTemplate + " extends JTLTemplate");
         tout("{");
         tout("  static public void main(String[] args) {");
-        tout("      JTLTemplate._run(args,new " + classFileTemplate + "(new JTLContext()),\"" + classFileTemplate + "\");");
+        tout("      JTLTemplate._run(args,new " + classFileTemplate + "(new JTLContext()),\"" + classFileTemplate
+                + "\");");
         tout("  }");
         tout("  public " + classFileTemplate + "(JTLContext ctxIn) { ctx(ctxIn); }");
         tout("  @Override");
@@ -110,7 +109,7 @@ public class JTLC {
         tout("");
     }
 
-    /// print java code line 
+    /// print java code line
     protected void print_code(String s) {
         if (s.trim().endsWith(";")) {
             String fill = "";
@@ -126,9 +125,9 @@ public class JTLC {
     /// print no-code line but replace code-words (=java statements)
     protected void print_nocode(String s) throws Exception {
 
-		s = s.replace("\\", "\\\\");
-		//s = s.replace("\"", "\\\"");
-		
+        s = s.replace("\\", "\\\\");
+        // s = s.replace("\"", "\\\"");
+
         String res = "";
         boolean inCode = false;
         boolean inStr = false;
@@ -166,12 +165,12 @@ public class JTLC {
         }
 
         if (inStr) {
-            //throw (new Exception("Unclosed string"));
+            // throw (new Exception("Unclosed string"));
         }
 
         // now we create java code line by using println
         String codestr = "println(\"" + res + "\");";
-        print_code(codestr); // reuse the print_code method 
+        print_code(codestr); // reuse the print_code method
     }
 
     /// process a single line in jtl file
@@ -194,7 +193,7 @@ public class JTLC {
         if (lastCheckOK) {
             if (inCodeBlock) {
                 inCodeBlock = false;
-                // it probably was not intended to print some empty text after closing bracket. 
+                // it probably was not intended to print some empty text after closing bracket.
                 if (ts.trim().length() != 0) {
                     print_nocode(ts);
                 }
@@ -230,7 +229,8 @@ public class JTLC {
         print_nocode(line);
     }
 
-    /// Process a jtl template file line by line. TemplateReader was already setup to read the jtl file
+    /// Process a jtl template file line by line. TemplateReader was already setup
+    /// to read the jtl file
     protected void processTemplate() {
         log("Generating java file: " + javaTemplateFile);
 
@@ -263,8 +263,8 @@ public class JTLC {
         log("Compile it and run with your definition file");
     }
 
-    /// Runs the JTLC compiler for jtl file provided in tname
-    /// Creates file readers and writers, setup of class names, etc
+    /// Runs the JTLC compiler for jtl file provided in tname Creates file readers
+    /// and writers, setup of class names, etc
     public void run() {
         log("JTL file: " + tname);
 
@@ -273,7 +273,7 @@ public class JTLC {
             jtlHeaderFileName = tname.replace(".jtl", ".jtl_header");
             templateReader = new RandomAccessFile(tname, "r");
             classFileTemplate = file.getName().replace(".jtl", "");
-            javaTemplateFile = file.getAbsolutePath().replace(".jtl", ".java"); 
+            javaTemplateFile = file.getAbsolutePath().replace(".jtl", ".java");
             pout = new PrintStream(new FileOutputStream(javaTemplateFile), true, "UTF8");
             processTemplate();
             pout.close();
@@ -290,7 +290,8 @@ public class JTLC {
     public static void main(String[] args) throws Exception {
         JTLC jtlc;
 
-        JTLOut.out.println("JTCL: Java Template Language Compiler. Version "+JTLContext.majorVersion+"."+JTLContext.minorVersion);
+        JTLOut.out.println("JTCL: Java Template Language Compiler. Version " + JTLContext.majorVersion + "."
+                + JTLContext.minorVersion);
 
         if (args.length == 0) {
             JTLOut.out.println("Usage: JTCL <template_file_1.jtl> <template_file_2.jtl> ... ");

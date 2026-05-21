@@ -1,4 +1,3 @@
-
 import java.util.*;
 
 /**
@@ -8,16 +7,16 @@ import java.util.*;
  */
 public class JTLEntity extends Object {
 
-    ///@ children name
+    /// @ children name
     public String name;
 
-    ///@ parameters of the entity
+    /// @ parameters of the entity
     public Vector<String> params;
 
-    ///@ children of the entity
+    /// @ children of the entity
     public Vector<JTLEntity> children;
 
-    ///@ parent entity
+    /// @ parent entity
     public JTLEntity parent;
 
     public JTLEntity() {
@@ -27,7 +26,7 @@ public class JTLEntity extends Object {
         children = new Vector<JTLEntity>();
     }
 
-    ///@ returns child by given name
+    /// @ returns child by given name
     public JTLEntity child(String sname) {
         if (sname.equals("..")) {
             return parent;
@@ -39,18 +38,19 @@ public class JTLEntity extends Object {
                 return e;
             }
         }
-        //JTLOut.out.println("JTLEntity.child(String) method didn't find child named:"+sname);
-        //JTLOut.out.println("Entity "+fullpath());
-        //dump(5);
+        // JTLOut.out.println("JTLEntity.child(String) method didn't find child
+        // named:"+sname);
+        // JTLOut.out.println("Entity "+fullpath());
+        // dump(5);
         return null;
     }
 
-    ///@ returns true if child exists
+    /// @ returns true if child exists
     public boolean hasChild(String sname) {
         return child(sname) != null;
     }
 
-    ///@ returns full path of entity with "/" as delimiter
+    /// @ returns full path of entity with "/" as delimiter
     public String fullpath() {
         if (parent == null) {
             return name;
@@ -59,7 +59,7 @@ public class JTLEntity extends Object {
         }
     }
 
-    ///@ returns child by index
+    /// @ returns child by index
     public JTLEntity child(int nr) throws Exception {
         if (nr < children.size()) {
             return (JTLEntity) children.elementAt(nr);
@@ -71,7 +71,7 @@ public class JTLEntity extends Object {
         }
     }
 
-    ///@ returns param by index
+    /// @ returns param by index
     public String param(int nr) throws Exception {
         if (nr < params.size()) {
             return (String) params.elementAt(nr);
@@ -83,12 +83,12 @@ public class JTLEntity extends Object {
         }
     }
 
-    ///@ returns true if this child is last one
+    /// @ returns true if this child is last one
     public boolean isLast() {
         return parent.children.elementAt(parent.children.size() - 1) == this;
     }
 
-    ///@ returns true if this child is first one
+    /// @ returns true if this child is first one
     public boolean isFirst() {
         return parent.children.elementAt(0) == this;
     }
@@ -134,20 +134,20 @@ public class JTLEntity extends Object {
         return name;
     }
 
-    ///@ adds child to entity
+    /// @ adds child to entity
     public JTLEntity addChild(JTLEntity e) {
         children.addElement(e);
         e.parent = this;
         return this;
     }
 
-    ///@ adds parameter to entity
+    /// @ adds parameter to entity
     public JTLEntity addParam(String p) {
         params.addElement(p);
         return this;
     }
 
-    ///@ sets parameter by index
+    /// @ sets parameter by index
     public JTLEntity setParam(int i, String p) throws Exception {
 
         if (i < params.size()) {
@@ -187,8 +187,7 @@ public class JTLEntity extends Object {
     }
 
     /// dumps definition in def format
-    public void dump()
-    {
+    public void dump() {
         dump(0);
     }
 
@@ -203,11 +202,11 @@ public class JTLEntity extends Object {
         }
 
         if (children.size() > 0) {
-            if (sparams.length()==0)
+            if (sparams.length() == 0)
                 printshifted("<" + name + ">", depth);
             else
                 printshifted("<" + name + " " + sparams + ">", depth);
-            
+
             for (int i = 0; i < children.size(); i++) {
                 JTLEntity e = (JTLEntity) children.elementAt(i);
                 e.dumpXML(depth + 1);
@@ -220,8 +219,7 @@ public class JTLEntity extends Object {
     }
 
     /// dumps definitionin XML format
-    public void dumpXML()
-    {
+    public void dumpXML() {
         dumpXML(0);
     }
 

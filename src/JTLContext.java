@@ -9,15 +9,15 @@ import java.text.*;
  */
 public class JTLContext {
 
-	/// Tool version major number
-	public static final int majorVersion = 3;
-	
-	/// Tool version minor number
-	public static final int minorVersion = 4;
-	
-    /// Writer object which will be used for output. If its null the standard
-    /// output will be used
-    public JTLResultWriter twriter; 
+    /// Tool version major number
+    public static final int majorVersion = 3;
+
+    /// Tool version minor number
+    public static final int minorVersion = 4;
+
+    /// Writer object which will be used for output. If its null the standard output
+    /// will be used
+    public JTLResultWriter twriter;
 
     public boolean inManualCode;
     public String definitionFileName;
@@ -25,55 +25,53 @@ public class JTLContext {
 
     /// if true we are currently in manual section and skipping the generated output
     public boolean skipUntilManualSectionEnd;
-    
+
     /// current user section key
     public String manualCodeKey;
-    
-    /// skipped lines if processing user sections
-    public int skippedLines; 
-    
-    /// current template line
-    public int tline; 
-    
-	/// default manual pattern for start
-	public static final String DefaultManualStartPattern = "//--jtl--@id@--begin--*";
 
-	/// default manual pattern for end
-	public static final String DefaultManualEndPattern = "//--jtl--@id@--end--*";
-	
-	/// current manual pattern for start
+    /// skipped lines if processing user sections
+    public int skippedLines;
+
+    /// current template line
+    public int tline;
+
+    /// default manual pattern for start
+    public static final String DefaultManualStartPattern = "//--jtl--@id@--begin--*";
+
+    /// default manual pattern for end
+    public static final String DefaultManualEndPattern = "//--jtl--@id@--end--*";
+
+    /// current manual pattern for start
     public String ManualSectionStartPattern = DefaultManualStartPattern;
-	
-	/// current manual pattern for end
+
+    /// current manual pattern for end
     public String ManualSectionEndPattern = DefaultManualEndPattern;
 
-	/// Default prefix
-	public String DefaultManualCodePrefix = "//--jtl--";
-	
-	/// Default postfix
-	public String DefaultManualCodePostfix = "*";
-	
-	/// Current prefix
-	public String ManualCodePrefix = "//--jtl--";
-	
-	/// Current postfix
-	public String ManualCodePostfix = "*";
-	
-	public void updateManualPatternsInWriter()
-	{
-		if (null != twriter)
-		{
-			twriter.setManualSectionBeginPattern(ManualSectionStartPattern);
-			twriter.setManualSectionEndPattern(ManualSectionEndPattern);
-		}		
-	}
-	public void updateManualPatterns()
-	{
-		ManualSectionStartPattern = ManualCodePrefix+"@id@--begin--"+ManualCodePostfix;
-		ManualSectionEndPattern = ManualCodePrefix+"@id@--end--"+ManualCodePostfix;
-		updateManualPatternsInWriter();
-	}
-		
+    /// Default prefix
+    public String DefaultManualCodePrefix = "//--jtl--";
+
+    /// Default postfix
+    public String DefaultManualCodePostfix = "*";
+
+    /// Current prefix
+    public String ManualCodePrefix = "//--jtl--";
+
+    /// Current postfix
+    public String ManualCodePostfix = "*";
+
+    public void updateManualPatternsInWriter() {
+        if (null != twriter) {
+            twriter.setManualSectionBeginPattern(ManualSectionStartPattern);
+            twriter.setManualSectionEndPattern(ManualSectionEndPattern);
+        }
+    }
+
+    public void updateManualPatterns() {
+        ManualSectionStartPattern = ManualCodePrefix + "@id@--begin--" + ManualCodePostfix;
+        ManualSectionEndPattern = ManualCodePrefix + "@id@--end--" + ManualCodePostfix;
+        updateManualPatternsInWriter();
+    }
+
     /// reference to the root entity
     public JTLEntity root;
 
@@ -87,11 +85,10 @@ public class JTLContext {
         tline = 0;
     }
 
-   
     private String getManualSectionID(String s) {
         return s;
     }
-   
+
     public void println(CharSequence c) throws IOException {
         if (skipUntilManualSectionEnd) {
             skippedLines++;
@@ -107,8 +104,8 @@ public class JTLContext {
     public void manual_begin(JTLEntity e) throws Exception {
         manual_begin(e.fullpath());
     }
-    
-    
+
+    /// start of manual code section. The string s is the key for this section and will be used to identify it in the generated java file
     public void manual_begin(String s) throws Exception {
         if (inManualCode) {
             _throw("Nested manual code sections are not allowed");
@@ -119,16 +116,18 @@ public class JTLContext {
         manualCodeKey = s;
 
         String e_uuid = getManualSectionID(s);
-        
-        if (twriter==null)
-            _throw("Manual code section can only be used after a file() commando was issued. Section ID="+s);
-        
+
+        if (twriter == null)
+            _throw("Manual code section can only be used after a file() commando was issued. Section ID=" + s);
+
         if (twriter.copyManualSection(e_uuid, twriter)) {
             skipUntilManualSectionEnd = true;
         } else {
             twriter.write(twriter.getManualSectionID_Begin(e_uuid));
         }
     }
+
+    /// end of manual code section
     public void manual_end() throws Exception {
         if (!inManualCode) {
             _throw("End of manual code without start");
@@ -143,25 +142,24 @@ public class JTLContext {
         }
     }
 
-	/// reads a file and gives returns it's contents as vector of strings
-	public Vector<String> load_file(String fname) throws Exception
-	{
-			Vector<String> filebuffer = new Vector<String>();
-			FileInputStream fis = new FileInputStream(fname);
-            InputStreamReader isr = new InputStreamReader(fis, "UTF8");
-            BufferedReader in = new BufferedReader(isr);
+    /// reads a file and returns it's contents as vector of strings
+    public Vector<String> load_file(String fname) throws Exception {
+        Vector<String> filebuffer = new Vector<String>();
+        FileInputStream fis = new FileInputStream(fname);
+        InputStreamReader isr = new InputStreamReader(fis, "UTF8");
+        BufferedReader in = new BufferedReader(isr);
 
-            String line = in.readLine();
-            while (line != null) {
-                filebuffer.add(line);
-                line = in.readLine();
-            }
-            in.close();
-            fis.close();
-			
-			return filebuffer;
-	}
-	
+        String line = in.readLine();
+        while (line != null) {
+            filebuffer.add(line);
+            line = in.readLine();
+        }
+        in.close();
+        fis.close();
+
+        return filebuffer;
+    }
+
     protected void _throw(String what) throws Exception {
         throw new Exception(what);
     }

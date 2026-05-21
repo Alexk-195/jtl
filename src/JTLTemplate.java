@@ -10,27 +10,31 @@ import java.util.Vector;
  */
 public class JTLTemplate {
 
-    private JTLContext ctx = null; ///< this context is shared during processing of one root template 
+    /// this context is shared during processing of one root template
+    private JTLContext ctx = null;
 
+    /// Constructor
     public JTLTemplate() {
     }
 
     /// methods visible by templates. They are not allowed to start with _
-	
-    /// prints a line to output. This is actually the same as writing a line of text in non-control-code section. 
+
+    /// prints a line to output. This is actually the same as writing a line of text
+    /// in non-control-code section.
     public void println(CharSequence c) throws IOException {
         ctx.println(c);
     }
 
-    /// prints vector of strings to output. This is actually the same as writing a line of text in non-control-code section. 
-	public void println(Vector<String> vs) throws IOException {
-		for (String s:vs)
-		{
-			ctx.println(s);
-		}
-	}
-	
-    /// starts a manual code section with given entity (JTLEntity.fullpath() will be used as key)
+    /// prints vector of strings to output. This is actually the same as writing a
+    /// line of text in non-control-code section.
+    public void println(Vector<String> vs) throws IOException {
+        for (String s : vs) {
+            ctx.println(s);
+        }
+    }
+
+    /// starts a manual code section with given entity (JTLEntity.fullpath() will be
+    /// used as key)
     public void manual_begin(JTLEntity e) throws Exception {
         ctx.manual_begin(e);
     }
@@ -40,7 +44,8 @@ public class JTLTemplate {
         ctx.manual_begin(id);
     }
 
-    /// starts a manual code section with given entity (JTLEntity.fullpath() will be used as key)
+    /// starts a manual code section with given entity (JTLEntity.fullpath() will be
+    /// used as key)
     public void manual_start(JTLEntity e) throws Exception {
         warning("manual_start is Deprecated. Use manual_begin");
         ctx.manual_begin(e);
@@ -57,50 +62,46 @@ public class JTLTemplate {
         ctx.manual_end();
     }
 
-	/// From Version 2.4. Sets manual section patterns. The String @id@ will be replaced by actual id.
-	public void manual_patterns(String pbegin, String pend)
-	{
-		ctx.ManualSectionStartPattern = pbegin;
-		ctx.ManualSectionEndPattern = pend;
-		ctx.updateManualPatternsInWriter();
-	}
-	
-	/// From Version 2.4. Sets manual section patterns to default
-	public void manual_patterns_default()
-	{
-		ctx.ManualCodePrefix = ctx.DefaultManualCodePrefix;
-		ctx.ManualCodePostfix = ctx.DefaultManualCodePostfix;
-		ctx.updateManualPatterns();
-	}
-	
-    /// start writing to new file with given filename 
+    /// From Version 2.4. Sets manual section patterns. The String @id@ will be
+    /// replaced by actual id.
+    public void manual_patterns(String pbegin, String pend) {
+        ctx.ManualSectionStartPattern = pbegin;
+        ctx.ManualSectionEndPattern = pend;
+        ctx.updateManualPatternsInWriter();
+    }
+
+    /// From Version 2.4. Sets manual section patterns to default
+    public void manual_patterns_default() {
+        ctx.ManualCodePrefix = ctx.DefaultManualCodePrefix;
+        ctx.ManualCodePostfix = ctx.DefaultManualCodePostfix;
+        ctx.updateManualPatterns();
+    }
+
+    /// start writing to new file with given filename
     public void file(String filename) throws Exception {
         close();
         ctx.twriter = new JTLResultWriter(filename, ctx.definitionFileName, ctx.templateFileName);
-		ctx.updateManualPatternsInWriter();
+        ctx.updateManualPatternsInWriter();
     }
 
-	/// creates a folder if not existent (from version 2.2)
-	public void folder(String foldername) throws Exception {
-		close();
-		try
-		{
-			Path p = Paths.get(foldername);
-			if (!Files.exists(p)) {
-				Files.createDirectory(p);
-			} else {
-			}
-		}catch (Exception e)
-		{
-		}			
-	}
-	
-	/// reads a file and gives returns its contents as vector of strings
-	public Vector<String> load_file(String fname) throws Exception
-	{
-		return ctx.load_file(fname);
-	}
-	
+    /// creates a folder if not existent (from version 2.2)
+    public void folder(String foldername) throws Exception {
+        close();
+        try {
+            Path p = Paths.get(foldername);
+            if (!Files.exists(p)) {
+                Files.createDirectory(p);
+            } else {
+            }
+        } catch (Exception e) {
+        }
+    }
+
+    /// reads a file and gives returns its contents as vector of strings
+    public Vector<String> load_file(String fname) throws Exception {
+        return ctx.load_file(fname);
+    }
+
     /// returns template file name
     public String template() {
         return ctx.templateFileName;
@@ -111,35 +112,38 @@ public class JTLTemplate {
         return ctx.definitionFileName;
     }
 
-    /// sets prefix string for manual code sections. Used to identify manual code sections
+    /// sets prefix string for manual code sections. Used to identify manual
+    /// code sections
     public void manual_prefix(String s) {
         ctx.ManualCodePrefix = s;
-		ctx.updateManualPatterns();
+        ctx.updateManualPatterns();
     }
 
-    /// returns prefix string for manual code sections. Used to identify manual code sections
+    /// returns prefix string for manual code sections. Used to identify manual
+    /// code sections
     public String manual_prefix() {
         return ctx.ManualCodePrefix;
     }
-	
-    /// sets postfix string for manual code sections. Used to identify manual code sections
+
+    /// sets postfix string for manual code sections. Used to identify manual
+    /// code sections
     public void manual_postfix(String s) {
         ctx.ManualCodePostfix = s;
-		ctx.updateManualPatterns();
+        ctx.updateManualPatterns();
     }
 
-    /// returns postfix string for manual code sections. Used to identify manual code sections
+    /// returns postfix string for manual code sections. Used to identify manual
+    /// code sections
     public String manual_postfix() {
         return ctx.ManualCodePostfix;
     }
 
-	/// String representation of version
-	public String version()
-	{
-		String r=""+ctx.majorVersion+"."+ctx.minorVersion;
-		return r;
-	}
-	
+    /// String representation of version
+    public String version() {
+        String r = "" + ctx.majorVersion + "." + ctx.minorVersion;
+        return r;
+    }
+
     /// returns context. Context must be passed to underlying templates
     public final JTLContext ctx() {
         return ctx;
@@ -155,26 +159,24 @@ public class JTLTemplate {
         JTLOut.err.println(what);
     }
 
-    /// Throws exception with error message. This also aborts generation. internal throw
+    /// Throws exception with error message. This also aborts generation.
+    /// internal throw
     protected void error(String what) throws Exception {
         throw new Exception(what);
     }
 
-	/// disable backup file creation for currently opened file
-	public void disable_backup()
-	{
-		if (ctx.twriter != null)
-			ctx.twriter.setCreateBackup(false);
-	}
-	
-	/// enables backup file creation for currently opened file
-	public void enable_backup()
-	{
-		if (ctx.twriter != null)
-			ctx.twriter.setCreateBackup(true);
-	}
-	
-	
+    /// disable backup file creation for currently opened file
+    public void disable_backup() {
+        if (ctx.twriter != null)
+            ctx.twriter.setCreateBackup(false);
+    }
+
+    /// enables backup file creation for currently opened file
+    public void enable_backup() {
+        if (ctx.twriter != null)
+            ctx.twriter.setCreateBackup(true);
+    }
+
     /// entry method for template generation, overriden in all templates
     protected void process(Object object) throws Exception {
     }
@@ -196,10 +198,10 @@ public class JTLTemplate {
 
     /// will be called by subclass templates main method
     public static void _run(String args[], JTLTemplate t, String templateName) {
-		//JTLOut.out.println("Run template "+templateName);
+        // JTLOut.out.println("Run template "+templateName);
         if (args.length >= 1) {
             for (String defname : args) {
-				//JTLOut.out.println("Definition file "+defname);
+                // JTLOut.out.println("Definition file "+defname);
                 JTLDefinitionParser defparser;
                 JTLContext ctx = t.ctx();
                 try {

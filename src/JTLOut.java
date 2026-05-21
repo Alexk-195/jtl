@@ -1,13 +1,14 @@
 
 import java.io.*;
+
 /**
- Console output using specific character encoding
-*/
+ * Console output using specific character encoding
+ */
 public class JTLOut {
 
     public static PrintStream out;
     public static PrintStream err;
-    
+
     static {
         try {
             out = new PrintStream(System.out, true, "Cp850");

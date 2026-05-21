@@ -52,26 +52,23 @@ public class JTL {
     private boolean skipCompile = false;
     private boolean skipGenerate = false;
     private boolean onWindows = false;
-    void log(String s)
-    {
+
+    void log(String s) {
         if (verbose)
             JTLOut.out.println(s);
     }
 
-    void err(String s)
-    {
+    void err(String s) {
         JTLOut.err.println(s);
     }
 
-    public JTL(boolean verbose) throws Exception
-    {
+    public JTL(boolean verbose) throws Exception {
         this.verbose = verbose;
     }
 
-    public void compileTemplate(Path folder, String javaFileName)
-    {
+    public void compileTemplate(Path folder, String javaFileName) {
         String folderStr = folder.toAbsolutePath().toString();
-        log("Working folder: "+folderStr);
+        log("Working folder: " + folderStr);
 
         JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
         if (compiler == null) {
@@ -82,19 +79,18 @@ public class JTL {
         StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, null);
 
         // Get a Java file object from the file manager
-        Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(
-                Arrays.asList(new File(javaFileName))
-        );
+        Iterable<? extends JavaFileObject> compilationUnits = fileManager
+                .getJavaFileObjectsFromFiles(Arrays.asList(new File(javaFileName)));
 
         // Compilation options
-        List<String> options = Arrays.asList(
-                classPathKey, classPathParam+folderStr,
-                "-d", folderStr          // Output directory for compiled classes
+        List<String> options = Arrays.asList(classPathKey, classPathParam + folderStr, "-d", folderStr // Output
+                                                                                                       // directory for
+                                                                                                       // compiled
+                                                                                                       // classes
         );
 
         // Create a compilation task
-        JavaCompiler.CompilationTask task = compiler.getTask(
-                null, // Writer, null means use the default System.err
+        JavaCompiler.CompilationTask task = compiler.getTask(null, // Writer, null means use the default System.err
                 fileManager, // FileManager, null means use the default
                 null, // DiagnosticListener, null means use the default
                 options, // Compilation options, such as "-d bin"
@@ -120,8 +116,7 @@ public class JTL {
         }
     }
 
-    public void executeTemplate(Path folder, String className, Object[] definitionFiles) throws Exception
-    {
+    public void executeTemplate(Path folder, String className, Object[] definitionFiles) throws Exception {
         Path classNamePath = Paths.get(className);
         String classFileName = classNamePath.getFileName().toString();
 
@@ -129,7 +124,7 @@ public class JTL {
         URL jtlUrl = jtlJar.toAbsolutePath().toUri().toURL();
 
         URL[] classUrls = { classUrl, jtlUrl };
-        log("Loading class with URLS:"+classUrl.toString()+","+jtlUrl.toString());
+        log("Loading class with URLS:" + classUrl.toString() + "," + jtlUrl.toString());
 
         // Create a class loader
         URLClassLoader classLoader = new URLClassLoader(classUrls);
@@ -145,22 +140,18 @@ public class JTL {
         mainMethod.invoke(null, methodArgs);
     }
 
-
-    public void run(String prj_fname) throws Exception
-    {
+    public void run(String prj_fname) throws Exception {
         projectFilePath = Paths.get(prj_fname);
 
-        if (!projectFilePath.toFile().exists())
-        {
-            err("Project file not found:"+prj_fname);
+        if (!projectFilePath.toFile().exists()) {
+            err("Project file not found:" + prj_fname);
             throw new FileNotFoundException(prj_fname);
-        }
-        else {
-            log("Project file: "+projectFilePath.toAbsolutePath());
+        } else {
+            log("Project file: " + projectFilePath.toAbsolutePath());
         }
         projectFolderPath = projectFilePath.toAbsolutePath().getParent();
 
-        log("Project folder: "+projectFolderPath.toAbsolutePath());
+        log("Project folder: " + projectFolderPath.toAbsolutePath());
 
         parser = new JTLDefinitionParser(prj_fname);
         parser.parseDefFormat();
@@ -183,31 +174,27 @@ public class JTL {
 
         // look for JTL.jar in common locations folder
         jtlJar = Paths.get("JTL.jar");
-        if (!jtlJar.toFile().exists())
-        {
+        if (!jtlJar.toFile().exists()) {
             jtlJar = projectFolderPath.resolve("JTL.jar");
-            if (!jtlJar.toFile().exists())
-            {
+            if (!jtlJar.toFile().exists()) {
                 String jarPath = JTL.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
                 if (onWindows)
                     jarPath = jarPath.substring(1);
-                log("Expecting JTL.jar in: "+jarPath);
+                log("Expecting JTL.jar in: " + jarPath);
                 jtlJar = Paths.get(jarPath);
-                if (!jtlJar.toFile().exists())
-                {
+                if (!jtlJar.toFile().exists()) {
                     throw new Exception("JTL: JTL.jar not found");
                 }
             }
         }
 
-
-        log("Using JTL.jar: "+jtlJar.toAbsolutePath().toString());
+        log("Using JTL.jar: " + jtlJar.toAbsolutePath().toString());
         String jtlJarStr = jtlJar.toAbsolutePath().toString();
 
-        classPathParam = jtlJarStr+classPathDelim;
+        classPathParam = jtlJarStr + classPathDelim;
 
-        for (JTLEntity template: parser.root.children) {
-            log("Template:"+template.name);
+        for (JTLEntity template : parser.root.children) {
+            log("Template:" + template.name);
             String folder = template.child("folder").param(0);
             String template_name = template.child("template").param(0);
             // Compile JTL
@@ -249,8 +236,9 @@ public class JTL {
 
         ArrayList<String> fileparams = new ArrayList<>();
         if (args.length == 0) {
-            JTLOut.out.println("JTL Version "+JTLContext.majorVersion+"."+JTLContext.minorVersion);
-            JTLOut.out.println("Usage: JTL [--verbose] [--skip_compile] [--skip_generate] <project file 1> <project file 2>");
+            JTLOut.out.println("JTL Version " + JTLContext.majorVersion + "." + JTLContext.minorVersion);
+            JTLOut.out.println(
+                    "Usage: JTL [--verbose] [--skip_compile] [--skip_generate] <project file 1> <project file 2>");
         } else {
 
             for (String arg : args) {
@@ -259,7 +247,7 @@ public class JTL {
                     verbose = true;
                 } else if (arg.equals("--skip_compile")) {
                     skipCompile = true;
-                } else if (arg.equals("--skip_generate")){
+                } else if (arg.equals("--skip_generate")) {
                     skipGenerate = true;
                 } else {
                     fileparams.add(arg);
@@ -270,11 +258,9 @@ public class JTL {
             jtl.skipCompile = skipCompile;
             jtl.skipGenerate = skipGenerate;
 
-            for (String projectFile: fileparams)
-            {
+            for (String projectFile : fileparams) {
                 jtl.run(projectFile);
             }
         }
     }
 }
-

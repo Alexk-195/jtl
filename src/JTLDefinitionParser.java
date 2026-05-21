@@ -1,6 +1,8 @@
+import java.io.*;
 
 /**
- * Definition parser. Read files in format showed below.
+ * Parser for definition files. Reads files in format showed below.
+ *
  * Result is a tree with entities. Each entity can have parameters.
  *
  * File format:
@@ -16,8 +18,6 @@
  *
  *
  */
-import java.io.*;
-
 public class JTLDefinitionParser {
 
     StreamTokenizer tokenizer;
@@ -66,12 +66,12 @@ public class JTLDefinitionParser {
         tokenizer.nextToken();
     }
 
-    void log(String s)
-    {
+    void log(String s) {
         if (verbose)
             JTLOut.out.println(s);
     }
 
+    /// parse a block definition
     protected void parseBlock(JTLEntity e) throws Exception {
         tokenizer.nextToken();
         while (tokenizer.ttype != BLOCK_END) {
@@ -100,7 +100,7 @@ public class JTLDefinitionParser {
                 throw new Exception("Array end or obj separator expected. Found: " + tokenizer.toString());
             }
             if (tokenizer.ttype == JSON_OBJ_SEPAR) {
-                tokenizer.nextToken();//eat ,
+                tokenizer.nextToken();// eat ,
             }
         }
     }
@@ -108,7 +108,7 @@ public class JTLDefinitionParser {
     // Parse the right site of :
     protected void parseJsonRightSite(JTLEntity e) throws Exception {
 
-       // JTLOut.out.println("p0: " + tokenizer.ttype);
+        // JTLOut.out.println("p0: " + tokenizer.ttype);
 
         if (tokenizer.ttype == QUOTE_CHAR) {
             e.params.addElement(tokenizer.sval);
@@ -159,23 +159,22 @@ public class JTLDefinitionParser {
                 parseJsonRightSite(keyval);
 
                 tokenizer.nextToken(); // expect , or end
-				
+
                 parseNextKeyValue = (tokenizer.ttype == JSON_OBJ_SEPAR);
 
                 if (parseNextKeyValue) {
-                    tokenizer.nextToken(); //eat ,
+                    tokenizer.nextToken(); // eat ,
                 }
+            } else {
+                throw new Exception("Key expected / unneeded separator. Before: " + tokenizer.toString());
             }
-			else
-			{
-				throw new Exception("Key expected / unneeded separator. Before: " + tokenizer.toString());
-			}
         }
         if (tokenizer.ttype != BLOCK_END) {
             throw new Exception("Object end } expected. Found: " + tokenizer.toString());
         }
     }
 
+    /// Parse the entity definition.
     protected void parseEntity(JTLEntity e) throws Exception {
 
         if ((tokenizer.ttype == StreamTokenizer.TT_EOF))
@@ -186,34 +185,34 @@ public class JTLDefinitionParser {
         }
         e.name = tokenizer.sval;
         tokenizer.nextToken();
-        //JTLOut.out.println("1: " + tokenizer.ttype);
+        // JTLOut.out.println("1: " + tokenizer.ttype);
         if (tokenizer.ttype == PARAM_SEPAR) {
-            //JTLOut.out.println("2: ");
+            // JTLOut.out.println("2: ");
             tokenizer.nextToken(); // accept comma as separator for entity
             return;
         }
 
         if (tokenizer.ttype == PARAM_BEGIN) {
-           // JTLOut.out.println("3: ");
+            // JTLOut.out.println("3: ");
             parseParams(e);
-           // JTLOut.out.println("4: ");
+            // JTLOut.out.println("4: ");
 
         }
 
         if (tokenizer.ttype == PARAM_SEPAR) {
-           // JTLOut.out.println("5: ");
+            // JTLOut.out.println("5: ");
 
             tokenizer.nextToken();// accept comma as separator for entity
             return;
         }
 
-        //JTLOut.out.println("6: ");
-        //while (tokenizer.ttype == tokenizer.TT_EOL) tokenizer.nextToken();
+        // JTLOut.out.println("6: ");
+        // while (tokenizer.ttype == tokenizer.TT_EOL) tokenizer.nextToken();
         if (tokenizer.ttype == BLOCK_BEGIN) {
             parseBlock(e);
         }
 
-       // JTLOut.out.println("7: ");
+        // JTLOut.out.println("7: ");
     }
 
     public void parseDefStart() throws java.io.IOException, Exception {
@@ -233,25 +232,23 @@ public class JTLDefinitionParser {
     public void parseCsvStart() throws java.io.IOException, Exception {
         root.name = "csv";
         tokenizer.nextToken();
-        while (tokenizer.ttype != StreamTokenizer.TT_EOF)
-        {
+        while (tokenizer.ttype != StreamTokenizer.TT_EOF) {
             JTLEntity e = new JTLEntity();
             e.name = CSV_ELEM_NAME;
-            while (tokenizer.ttype != StreamTokenizer.TT_EOL)
-            {
+            while (tokenizer.ttype != StreamTokenizer.TT_EOL) {
                 e.addParam(tokenizer.sval);
                 tokenizer.nextToken();
                 if (tokenizer.ttype != CSV_DELIM && tokenizer.ttype != StreamTokenizer.TT_EOL)
-                    throw new Exception("CSV elements must be delimited by "+CSV_DELIM);
+                    throw new Exception("CSV elements must be delimited by " + CSV_DELIM);
                 if (tokenizer.ttype == CSV_DELIM)
                     tokenizer.nextToken(); // eat ;
             }
             tokenizer.nextToken(); // eat EOL
-            if (e.params.size()>0)
+            if (e.params.size() > 0)
                 root.addChild(e);
         }
     }
-    
+
     public void parseDefFormat() throws java.io.IOException, Exception {
         tokenizer.commentChar('/');
         tokenizer.slashSlashComments(true);
@@ -261,9 +258,9 @@ public class JTLDefinitionParser {
         tokenizer.wordChars('a', 'z');
         tokenizer.wordChars('0', '9');
         tokenizer.wordChars('_', '_'); // accept underscore as part of identifier
-		tokenizer.wordChars('-', '-'); // accept - as part of identifier
+        tokenizer.wordChars('-', '-'); // accept - as part of identifier
         tokenizer.wordChars(':', ':'); // accept : as part of identifier
-		tokenizer.wordChars('.', '.'); // accept . as part of identifier
+        tokenizer.wordChars('.', '.'); // accept . as part of identifier
         tokenizer.quoteChar(QUOTE_CHAR);
         tokenizer.eolIsSignificant(false);
 
@@ -280,8 +277,8 @@ public class JTLDefinitionParser {
         tokenizer.wordChars('a', 'z');
         tokenizer.wordChars('0', '9');
         tokenizer.wordChars('_', '_'); // accept underscore as part of identifier
-		tokenizer.wordChars('-', '-'); // accept - as part of identifier
-		tokenizer.wordChars('.', '.'); // accept . as part of identifier
+        tokenizer.wordChars('-', '-'); // accept - as part of identifier
+        tokenizer.wordChars('.', '.'); // accept . as part of identifier
         tokenizer.quoteChar(QUOTE_CHAR);
         tokenizer.eolIsSignificant(false);
 
@@ -298,15 +295,15 @@ public class JTLDefinitionParser {
         tokenizer.wordChars('a', 'z');
         tokenizer.wordChars('0', '9');
         tokenizer.wordChars('_', '_'); // accept underscore as part of identifier
-		tokenizer.wordChars('-', '-'); // accept - as part of identifier
-		tokenizer.wordChars('.', '.'); // accept . as part of identifier
+        tokenizer.wordChars('-', '-'); // accept - as part of identifier
+        tokenizer.wordChars('.', '.'); // accept . as part of identifier
         tokenizer.quoteChar(QUOTE_CHAR);
         tokenizer.eolIsSignificant(true);
-        
+
         csvMode = true;
         parseCsvStart();
-    }    
-    
+    }
+
     public JTLDefinitionParser(String filename) throws java.io.IOException, Exception {
         root = new JTLEntity();
         fis = new FileInputStream(filename);
@@ -315,21 +312,19 @@ public class JTLDefinitionParser {
         tokenizer.resetSyntax();
         String format = "";
 
-        if (filename.endsWith(".def")||filename.endsWith(".jtlp")) {
+        if (filename.endsWith(".def") || filename.endsWith(".jtlp")) {
             format = "DEF";
             parseDefFormat();
         } else if (filename.endsWith(".json")) {
-			format = "JSON";
+            format = "JSON";
             parseJsonFormat();
-        } else if (filename.endsWith(".csv")){
-			format = "CSV";
+        } else if (filename.endsWith(".csv")) {
+            format = "CSV";
             parseCsvFormat();
+        } else {
+            throw new Exception("Definition format not identified");
         }
-		else
-		{
-			 throw new Exception("Definition format not identified");
-		}
-        log("Definition file format: "+format);
+        log("Definition file format: " + format);
     }
 
     public static void main(String[] args) throws Exception {
@@ -340,8 +335,8 @@ public class JTLDefinitionParser {
             JTLOut.out.println("Supported formats by file extension: def,json,csv");
             return;
         }
-		JTLOut.out.println("JTLDefinitionParser main called with "+args[0]);
-		
+        JTLOut.out.println("JTLDefinitionParser main called with " + args[0]);
+
         JTLDefinitionParser parser = new JTLDefinitionParser(args[0]);
 
         JTLOut.out.println("Model in Def Format:");

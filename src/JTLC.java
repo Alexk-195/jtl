@@ -5,17 +5,14 @@
  *
  */
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class JTLC {
 
-    JTLDefinitionParser defparser;
-
-    /** Name of template file. */
+    /** name of template file */
     String tname;
-    RandomAccessFile templateReader;
+    BufferedReader templateReader;
     int linenr;
-    int skippedLines;
-    boolean lastCheckOK;
     boolean inCodeBlock;
     String classFileTemplate;
     String jtlHeaderFileName;
@@ -30,12 +27,16 @@ public class JTLC {
     static final String CW_E = "]@"; // ... end
     static final String CL = "@"; // code line
 
-    /** All template output shall be done using this method. */
+    /**
+     * All template output shall be done using this method.
+     */
     void tout(String s) {
         pout.println(s);
     }
 
-    /** Constructor requires name of template file (jtl file). */
+    /**
+     * Constructor requires name of template file (jtl file).
+     */
     public JTLC(String tname) {
         this.tname = tname;
 
@@ -55,29 +56,28 @@ public class JTLC {
     }
 
     /**
-     * Checks if line starts with particular string (front). If yes "front" will be
-     * replaced by string "repl".
+     * Checks if line starts with the given prefix. If yes, returns the line with
+     * "front" replaced by "repl". Otherwise returns null.
      */
     protected String checkReplace(String line, String front, String repl) {
         String ts = line.trim();
-        lastCheckOK = ts.startsWith(front);
-        if (lastCheckOK) {
+        if (ts.startsWith(front)) {
             return repl + line.substring(line.indexOf(front) + front.length());
         }
-
-        return line;
+        return null;
     }
 
-    /** Each created java file will have this header. */
+    /**
+     * Each created java file will have this header.
+     */
     protected void printTemplateHeader() {
 
         tout("import java.io.*;");
         tout("import java.util.*;");
         tout("import java.text.*;");
 
-        RandomAccessFile headerReader;
-        try {
-            headerReader = new RandomAccessFile(jtlHeaderFileName, "r");
+        try (BufferedReader headerReader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(jtlHeaderFileName), StandardCharsets.UTF_8))) {
             String line = headerReader.readLine();
             while (line != null) {
                 tout(line);
@@ -104,82 +104,73 @@ public class JTLC {
         tout("  // Code from jtl file follows");
     }
 
-    /** Each created java file will have this footer. */
+    /**
+     * Each created java file will have this footer.
+     */
     protected void printTemplateFooter() {
         tout("} // end of process");
         tout("} // end of class");
         tout("");
     }
 
-    /** Prints a java code line. */
+    /**
+     * Prints a java code line.
+     */
     protected void print_code(String s) {
         if (s.trim().endsWith(";")) {
-            String fill = "";
-            for (int i = s.length(); i < 80; i++) {
-                fill += " ";
-            }
-            tout(s + fill + "_line(" + linenr + ");");
+            tout(String.format("%-80s_line(%d);", s, linenr));
         } else {
             tout(s);
         }
     }
 
-    /** Prints a no-code line but replaces code-words (=java statements). */
+    /**
+     * Prints a no-code line but replaces code-words (=java statements).
+     */
     protected void print_nocode(String s) throws Exception {
 
         s = s.replace("\\", "\\\\");
-        // s = s.replace("\"", "\\\"");
 
-        String res = "";
+        StringBuilder res = new StringBuilder();
         boolean inCode = false;
-        boolean inStr = false;
-        for (int i = 0; i < s.length(); i++) {
+        final int n = s.length();
+        final char cwB0 = CW_B.charAt(0), cwB1 = CW_B.charAt(1);
+        final char cwE0 = CW_E.charAt(0), cwE1 = CW_E.charAt(1);
 
-            String t;
-            if (i < s.length() - 1) {
-                t = s.substring(i, i + 2);
-            } else {
-                t = s.substring(i, i + 1);
-            }
+        for (int i = 0; i < n; i++) {
+            char c = s.charAt(i);
+            char next = (i + 1 < n) ? s.charAt(i + 1) : '\0';
 
-            if (t.equals(CW_B)) {
-                if (!inCode) {
-                    res += "\"+";
-                    inCode = true;
-                    i++;
-                } else {
-                    throw (new Exception("Nested code sections not allowed : " + s));
-                }
-            } else if (t.equals(CW_E)) {
+            if (c == cwB0 && next == cwB1) {
                 if (inCode) {
-                    res += "+\"";
-                    inCode = false;
-                    i++;
-                } else {
-                    throw (new Exception("Unmatched " + CW_E + " symbol in :" + s));
+                    throw new Exception("Nested code sections not allowed : " + s);
                 }
-            } else if (t.charAt(0) == '"' && !inCode) {
-                res += "\\\"";
-                inStr = !inStr;
+                res.append("\"+");
+                inCode = true;
+                i++;
+            } else if (c == cwE0 && next == cwE1) {
+                if (!inCode) {
+                    throw new Exception("Unmatched " + CW_E + " symbol in :" + s);
+                }
+                res.append("+\"");
+                inCode = false;
+                i++;
+            } else if (c == '"' && !inCode) {
+                res.append("\\\"");
             } else {
-                res += t.charAt(0);
+                res.append(c);
             }
         }
 
-        if (inStr) {
-            // throw (new Exception("Unclosed string"));
-        }
-
-        // now we create java code line by using println
-        String codestr = "println(\"" + res + "\");";
-        print_code(codestr); // reuse the print_code method
+        print_code("println(\"" + res + "\");");
     }
 
-    /** Processes a single line in jtl file. */
+    /**
+     * Processes a single line in the jtl file.
+     */
     protected void processTemplateLine(String line) throws Exception {
-        String ts = line;
-        ts = checkReplace(line, CS_B, "");
-        if (lastCheckOK) {
+        String ts = checkReplace(line, CS_B, "");
+        if (ts != null) {
             if (!inCodeBlock) {
                 inCodeBlock = true;
                 print_code(ts);
@@ -192,7 +183,7 @@ public class JTLC {
         }
 
         ts = checkReplace(line, CS_E, "");
-        if (lastCheckOK) {
+        if (ts != null) {
             if (inCodeBlock) {
                 inCodeBlock = false;
                 // it probably was not intended to print some empty text after closing bracket.
@@ -208,15 +199,14 @@ public class JTLC {
         }
 
         // check for expression at the beginning, since it has same start as code line
-        checkReplace(line, CW_B, CW_B);
-        if (lastCheckOK) {
+        if (checkReplace(line, CW_B, CW_B) != null) {
             print_nocode(line);
             return;
         }
 
         // check for single line code sequence
         ts = checkReplace(line, CL, "");
-        if (lastCheckOK) {
+        if (ts != null) {
             print_code(ts);
             return;
         }
@@ -232,8 +222,8 @@ public class JTLC {
     }
 
     /**
-     * Processes a jtl template file line by line. TemplateReader was already setup
-     * to read the jtl file.
+     * Processes a jtl template file line by line. templateReader was already
+     * set up to read the jtl file.
      */
     protected void processTemplate() {
         log("Generating java file: " + javaTemplateFile);
@@ -242,11 +232,9 @@ public class JTLC {
         printTemplateHeader();
         String line = "";
         try {
-            skippedLines = 0;
             line = templateReader.readLine();
             linenr++;
             while (line != null) {
-                // = line.trim();
                 processTemplateLine(line);
                 line = templateReader.readLine();
                 linenr++;
@@ -268,31 +256,32 @@ public class JTLC {
     }
 
     /**
-     * Runs the JTLC compiler for jtl file provided in tname. Creates file readers
-     * and writers, sets up class names, etc.
+     * Runs the JTLC compiler for the jtl file provided in tname. Creates file
+     * readers and writers, sets up class names, etc.
      */
     public void run() {
         log("JTL file: " + tname);
 
-        try {
-            File file = new File(tname);
-            jtlHeaderFileName = tname.replace(".jtl", ".jtl_header");
-            templateReader = new RandomAccessFile(tname, "r");
-            classFileTemplate = file.getName().replace(".jtl", "");
-            javaTemplateFile = file.getAbsolutePath().replace(".jtl", ".java");
-            pout = new PrintStream(new FileOutputStream(javaTemplateFile), true, "UTF8");
+        File file = new File(tname);
+        jtlHeaderFileName = tname.replace(".jtl", ".jtl_header");
+        classFileTemplate = file.getName().replace(".jtl", "");
+        javaTemplateFile = file.getAbsolutePath().replace(".jtl", ".java");
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(new FileInputStream(tname), StandardCharsets.UTF_8));
+                PrintStream out = new PrintStream(new FileOutputStream(javaTemplateFile), false, "UTF-8")) {
+            templateReader = reader;
+            pout = out;
             processTemplate();
-            pout.close();
-        } catch (FileNotFoundException e) {
-            JTLOut.err.println(e.getLocalizedMessage());
-        } catch (UnsupportedEncodingException e) {
+        } catch (IOException e) {
             JTLOut.err.println(e.getLocalizedMessage());
             e.printStackTrace(JTLOut.err);
         }
-
     }
 
-    /** Function called from command line. */
+    /**
+     * Function called from the command line.
+     */
     public static void main(String[] args) throws Exception {
         JTLC jtlc;
 

@@ -19,8 +19,3 @@ Future improvements and follow-ups. Not commitments — a parking lot of ideas w
 - **`@[expr]@` is silently ignored inside `@< … @>` blocks.** The README and CLAUDE.md now document this, but the compiler could detect it and emit a warning rather than producing broken Java.
 - **`JTLC` reports parse errors to stderr but does not stop the pipeline.** A malformed `.jtl` produces a half-written `.java` file that then fails at `javac` time with a less obvious message. Surfacing parse errors as a hard failure in `JTL.java` would shorten the feedback loop.
 
-## Refactoring opportunities (low priority)
-
-- `JTLDefinitionParser` and `JTLResultWriter` only accept filenames. Adding `Reader`/`Writer` constructors would make them easier to unit-test without temp files (and easier to embed). The current tests use temp files, which works but is slower and clutters `/tmp`.
-- `JTLEntity` exposes its `Vector<String> params` and `Vector<JTLEntity> children` as public mutable fields. Encapsulating these behind methods would make refactoring (e.g. switching to `ArrayList`) a non-breaking change.
-- Consider replacing the hand-rolled `TestHarness` with JUnit 5 once a build system (Gradle/Maven) is in scope. Not worth the dependency churn today.

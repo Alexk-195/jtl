@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Make scripts executable
+        run: chmod +x build/build.sh build/test.sh
+
+      - name: Build
+        run: ./build/build.sh
+
+      - name: Test
+        run: ./build/test.sh

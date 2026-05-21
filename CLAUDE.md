@@ -21,7 +21,30 @@ JTL (Java Template Language) is a template processor that generates arbitrary te
 ./build/jtl.sh --skip_generate examples/project_1.jtlp  # skip Java execution
 ```
 
-There are no automated tests. Manual verification is done by running the examples and inspecting their output.
+### Tests
+
+```bash
+./build/build.sh      # JTL.jar must exist first
+./build/test.sh       # compile + run the test suite
+```
+
+The test harness lives in `test/` and uses no third-party dependencies (no JUnit jar). `test/TestHarness.java` is a reflection-based runner: it instantiates each class listed in `TEST_CLASSES` and invokes every public no-arg method whose name starts with `test`. A test passes if it returns normally, fails if it throws. To add a new test class, drop `FooTest.java` into `test/` and append `"FooTest"` to `TEST_CLASSES`.
+
+Current test classes:
+
+| Class | Coverage |
+|---|---|
+| `JTLEntityTest` | tree helpers (`child`, `fullpath`, `isFirst`/`isLast`, params) |
+| `JTLDefinitionParserTest` | DEF / JSON / CSV parsing via temp fixture files |
+| `JTLCTest` | `.jtl` → `.java` translation; inspects emitted source string |
+| `JTLResultWriterTest` | manual-section preservation, backup behavior |
+
+Manual verification by running the examples is still useful for end-to-end coverage.
+
+### Non-obvious behaviors caught while writing the tests
+
+- **`@[expr]@` is not substituted inside `@< … @>` blocks.** Between the multi-line code markers, every line is emitted as raw Java. To mix text and expressions, use single-line `@` for code lines and keep text lines outside the block. The README documents this implicitly; the test suite exercises both paths.
+- **`JTLResultWriter` "identical file" detection is whitespace-sensitive.** `identicalFiles()` compares `filebuffer` (lines read via `BufferedReader.readLine()`, no terminators) against `Lines` (the exact strings passed to `write`/`append`). In real templates `JTLContext.println(c)` calls `twriter.append(c)` *without* a trailing `\n` — the trailing newline is added by `PrintStream.println` only when the file is written out. If anything ever feeds embedded newlines into `write`, the comparison will spuriously report "Modified" on every run and a `.bak` will be created each time.
 
 ## Architecture
 

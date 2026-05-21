@@ -16,6 +16,7 @@ flowchart TD
 - [Examples](#examples)
 - [Definitions](#definitions)
 - [Templates](#templates)
+- [Testing](#testing)
 - [License](#license)
 
 ## Installation
@@ -175,6 +176,8 @@ The third sequence is used for larger control code blocks. It’s started by "@<
 This can be used instead of prepending every line with "@"
 You can see this in `examples/example2.jtl`.
 
+> **Note:** between `@<` and `@>` every line is treated as raw Java — `@[expr]@` inline expressions are **not** substituted there. To mix code and text, use single-line `@` for the code lines and keep the text (with any `@[…]@` expressions) outside the block.
+
 ### File creation
 In most cases we want to write our output to a certain file. For example if we generate C++ code we would write cpp and h files. Even if piping out console output to a file is an option we should definitely avoid this and use methods provided by JTL.
 This is done by methods "*file()*" and "*close()*" inside a control block. 
@@ -259,6 +262,26 @@ Here are all the public methods of JTLEntity in a table:
 | `public Vector<String> params` | Parameter |
 | `public Vector<JTLEntity> children` | Children |
 | `public JTLEntity parent` | Parent Entity |
+
+## Testing
+JTL ships with a small, zero-dependency unit test suite under `test/`. There is no JUnit jar — `test/TestHarness.java` is a reflection-based runner that discovers public no-arg methods whose names start with `test`.
+
+Build the jar and run the tests:
+```bash
+./build/build.sh
+./build/test.sh
+```
+
+To add a new test class, create `test/FooTest.java` and append `"FooTest"` to the `TEST_CLASSES` array in `TestHarness.java`. Inside a test, use the assertion forwarders (`assertEquals`, `assertTrue`, `assertContains`, etc.) defined in `TestHarness`. Helpers for writing temporary fixture files live in `TestFixtures.java`.
+
+Current coverage:
+
+| Test class | What it covers |
+|---|---|
+| `JTLEntityTest` | tree helpers — `child`, `fullpath`, `isFirst`/`isLast`, params |
+| `JTLDefinitionParserTest` | DEF / JSON / CSV parsing |
+| `JTLCTest` | `.jtl` → `.java` translation; checks emitted Java source |
+| `JTLResultWriterTest` | manual-section preservation, backup creation, identical-file detection |
 
 ## License
 MIT License, see LICENSE file 

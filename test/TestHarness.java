@@ -13,6 +13,7 @@ public class TestHarness {
         "JTLDefinitionParserTest",
         "JTLCTest",
         "JTLResultWriterTest",
+        "GoldenFileTest",
     };
 
     private static int passed = 0;

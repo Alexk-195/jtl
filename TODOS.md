@@ -4,7 +4,6 @@ Future improvements and follow-ups. Not commitments — a parking lot of ideas w
 
 ## Testing
 
-- **Golden-file integration tests.** Drive `examples/project_1.jtlp` end-to-end (compile + generate) into a temp output dir and diff against a checked-in `expected/` tree. Provide a `-Dupdate=true` (or `./build/test.sh --update`) escape hatch to regenerate goldens after intentional changes. Highest-value next step — catches integration bugs the current unit tests miss (codegen + classloading + writer interaction).
 - **Tests for `JTLContext` manual-section state machine.** `inManualCode`, `skipUntilManualSectionEnd`, `manualCodeKey`, and the interaction with `skippedLines` are subtle and currently untested.
 - **Tests for `JTLTemplate`** — `file`/`close`, `folder`, `manual_begin`/`manual_end`, `load_file`, `disable_backup`/`enable_backup`. These touch the filesystem so will need temp dirs.
 - **Test edge cases in the parsers** the current suite doesn't cover: nested arrays of objects in JSON; quoted values containing escape sequences in DEF; CSV with trailing semicolons; comments (`//`, `/* */`) in DEF input; UTF-8 non-ASCII identifiers.

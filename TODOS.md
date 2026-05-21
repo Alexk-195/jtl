@@ -10,11 +10,4 @@ Future improvements and follow-ups. Not commitments — a parking lot of ideas w
 - **Negative-path tests for `JTLC`** — unmatched `@>`, nested `@<`, unmatched `@[ … ]@`. Some of these currently print to stderr and continue rather than failing fast; decide which behavior is correct, then lock it in with a test.
 
 
-## Known quirks worth fixing or documenting more loudly
-
-- **`JTLResultWriter.identicalFiles()` is whitespace-sensitive.** It compares the in-memory `Lines` vector (exact strings passed to `write`) against the file content re-read via `readLine()` (terminators stripped). Works today only because `JTLContext.println` happens to call `twriter.append(c)` without a trailing `\n`. If anything ever passes embedded newlines through `write`, every regeneration will look "Modified" and produce a spurious `.bak`. Possible fixes:
-  - Normalize both sides (strip trailing newlines per element before comparing), or
-  - Compare the final byte content that would be written instead of the in-memory line lists.
-- **`@[expr]@` is silently ignored inside `@< … @>` blocks.** The README and CLAUDE.md now document this, but the compiler could detect it and emit a warning rather than producing broken Java.
-- **`JTLC` reports parse errors to stderr but does not stop the pipeline.** A malformed `.jtl` produces a half-written `.java` file that then fails at `javac` time with a less obvious message. Surfacing parse errors as a hard failure in `JTL.java` would shorten the feedback loop.
 

@@ -225,7 +225,7 @@ public class JTLC {
      * Processes a jtl template file line by line. templateReader was already
      * set up to read the jtl file.
      */
-    protected void processTemplate() {
+    protected void processTemplate() throws Exception {
         log("Generating java file: " + javaTemplateFile);
 
         linenr = 0;
@@ -241,14 +241,13 @@ public class JTLC {
             }
 
         } catch (Exception e) {
-
             JTLOut.err.print("Template Line ");
             JTLOut.err.print(linenr);
             if (line != null) {
                 JTLOut.err.println(": " + line.trim());
             }
             JTLOut.err.println(e.getMessage());
-            e.printStackTrace(JTLOut.err);
+            throw e;
         }
         printTemplateFooter();
         log("Succesfully generated java file: " + javaTemplateFile);
@@ -259,7 +258,7 @@ public class JTLC {
      * Runs the JTLC compiler for the jtl file provided in tname. Creates file
      * readers and writers, sets up class names, etc.
      */
-    public void run() {
+    public void run() throws Exception {
         log("JTL file: " + tname);
 
         File file = new File(tname);

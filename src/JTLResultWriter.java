@@ -22,6 +22,10 @@ public class JTLResultWriter extends Writer {
     private String manualSectionBeginPattern = "";
     /** End pattern; use {@code @id@} as placeholder for the section key. */
     private String manualSectionEndPattern = "";
+    /** Non-null when constructed with a {@link Writer} instead of a filename. */
+    private final Writer outputWriter;
+    /** True when writing to a real file; false when writing to an in-memory {@link Writer}. */
+    private final boolean fileMode;
 
     /** Contains old file content. */
     public Vector<String> filebuffer;
@@ -189,6 +193,17 @@ public class JTLResultWriter extends Writer {
             return;
         }
 
+        if (!fileMode) {
+            for (int i = 0; i < Lines.size(); i++) {
+                outputWriter.write(Lines.elementAt(i));
+                outputWriter.write("\r\n");
+            }
+            outputWriter.flush();
+            Lines.clear();
+            filebuffer.clear();
+            return;
+        }
+
         boolean canWriteNewFile = false;
         boolean backupCreated = false;
         boolean identicalFiles = false;
@@ -252,12 +267,41 @@ public class JTLResultWriter extends Writer {
 
     }
 
+    /**
+     * Constructs a writer that captures output in memory and writes it to
+     * {@code out} on {@link #close()}. {@code oldContent} (may be
+     * {@code null}) is read into the filebuffer so that manual-section
+     * preservation works without a file on disk. Useful for unit tests and
+     * embedding.
+     */
+    public JTLResultWriter(Writer out, Reader oldContent, String definitionFileNameIn, String templateFileNameIn)
+            throws Exception {
+        definitionFileName = definitionFileNameIn;
+        templateFileName = templateFileNameIn;
+        Lines = new Vector<String>();
+        filebuffer = new Vector<String>();
+        filename = "";
+        outputWriter = out;
+        fileMode = false;
+        if (oldContent != null) {
+            BufferedReader br = new BufferedReader(oldContent);
+            String line = br.readLine();
+            while (line != null) {
+                filebuffer.add(line);
+                line = br.readLine();
+            }
+            oldFileExist = true;
+        }
+    }
+
     public JTLResultWriter(String fname, String definitionFileNameIn, String templateFileNameIn) throws Exception {
         definitionFileName = definitionFileNameIn;
         templateFileName = templateFileNameIn;
         Lines = new Vector<String>();
         filebuffer = new Vector<String>();
         filename = fname;
+        outputWriter = null;
+        fileMode = true;
         loadOldFile(fname);
     }
 }

@@ -20,6 +20,6 @@ fi
 rm -rf "$TEST_OUT_DIR"
 mkdir -p "$TEST_OUT_DIR"
 
-javac --release 8 -g -cp "$JAR" -d "$TEST_OUT_DIR" "$TEST_SRC_DIR"/*.java
+javac --release 8 -Xlint:-options -g -cp "$JAR" -d "$TEST_OUT_DIR" "$TEST_SRC_DIR"/*.java
 
 java -cp "$TEST_OUT_DIR:$JAR" TestHarness

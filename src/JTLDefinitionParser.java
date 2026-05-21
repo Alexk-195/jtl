@@ -304,6 +304,31 @@ public class JTLDefinitionParser {
         parseCsvStart();
     }
 
+    /**
+     * Parses a definition from a {@link Reader}. The {@code format} parameter
+     * must be one of {@code "def"}, {@code "jtlp"}, {@code "json"}, or
+     * {@code "csv"} (case-insensitive). Useful for unit tests and embedding
+     * where no file on disk is needed.
+     */
+    public JTLDefinitionParser(Reader reader, String format) throws java.io.IOException, Exception {
+        root = new JTLEntity();
+        tokenizer = new StreamTokenizer(reader);
+        tokenizer.resetSyntax();
+        String fmt = format.toLowerCase();
+        if (fmt.equals("def") || fmt.equals("jtlp")) {
+            parseDefFormat();
+            log("Definition file format: DEF");
+        } else if (fmt.equals("json")) {
+            parseJsonFormat();
+            log("Definition file format: JSON");
+        } else if (fmt.equals("csv")) {
+            parseCsvFormat();
+            log("Definition file format: CSV");
+        } else {
+            throw new Exception("Definition format not identified: " + format);
+        }
+    }
+
     public JTLDefinitionParser(String filename) throws java.io.IOException, Exception {
         root = new JTLEntity();
         fis = new FileInputStream(filename);

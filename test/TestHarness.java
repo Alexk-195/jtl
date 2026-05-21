@@ -13,6 +13,7 @@ public class TestHarness {
         "JTLDefinitionParserTest",
         "JTLCTest",
         "JTLResultWriterTest",
+        "JTLContextTest",
         "GoldenFileTest",
     };
 
